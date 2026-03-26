@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrowUp - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+</head>
+<body class="dashboard-page">
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo-area">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="nav-logo">
+                <span class="brand-name">GrowUp</span>
+            </div>
+            <div class="user-info">
+                <span>Welcome, {{ user.username }}</span>
+                <a href="/api/logout" class="logout-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-content">
+        <!-- SIDEBAR -->
+        <div class="sidebar glass-card">
+            <!-- Indices Section -->
+            <div class="sidebar-indices">
+                <div class="sidebar-section-label">Indices</div>
+                <div class="index-pills">
+                    {% for ticker, name in indices.items() %}
+                    <div class="index-pill" onclick="loadStock('{{ ticker }}')">
+                        <span class="index-pill-name">{{ name }}</span>
+                        <span class="index-pill-ticker">{{ ticker }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="sidebar-section-label" style="margin-top:12px;">Nifty 100</div>
+            <div class="search-box">
+                <input type="text" id="stockSearch" placeholder="Search company or ticker...">
+            </div>
+            <ul id="stockList">
+                {% for stock in stocks %}
+                <li onclick="loadStock('{{ stock }}')" data-ticker="{{ stock }}">
+                    <span class="stock-full-name">{{ stock_names.get(stock, stock) }}</span>
+                    <span class="stock-ticker-sub">{{ stock }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- MAIN PANEL -->
+        <div class="main-panel">
+            <div id="selectionHint" class="glass-card hint-card">
+                <h2>Select a stock to see AI predictions</h2>
+                <p>Choose any Nifty 100 company from the sidebar.</p>
+            </div>
+
+            <div id="stockDetails" class="hidden">
+
+                <!-- GROWW-STYLE STOCK HEADER -->
+                <div class="groww-header glass-card">
+                    <div class="groww-header-left">
+                        <div class="groww-name-row">
+                            <span id="displayCompany" class="groww-company">-</span>
+                            <span id="displayTicker" class="groww-ticker">-</span>
+                        </div>
+                        <div class="groww-price-row">
+                            <span id="displayPrice" class="groww-price">₹0.00</span>
+                            <span id="displayChange" class="groww-change">-</span>
+                        </div>
+                        <div class="groww-ohlc-row">
+                            <span>O <strong id="ohlcOpen">-</strong></span>
+                            <span>H <strong id="ohlcHigh">-</strong></span>
+                            <span>L <strong id="ohlcLow">-</strong></span>
+                            <span>C <strong id="ohlcClose">-</strong></span>
+                        </div>
+                    </div>
+                    <div class="groww-header-right">
+                        <div class="ai-badge">
+                            <span class="ai-label">AI 1-Day Forecast</span>
+                            <span id="predictionValue" class="ai-value">₹0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHART with TIMEFRAME AT BOTTOM -->
+                <div class="chart-container glass-card">
+                    <div class="chart-hover-wrapper">
+                        <div class="chart-hover-date" id="hoverDate"></div>
+                    </div>
+                    <div id="stockChart"></div>
+                    <div class="timeframe-bar">
+                        <button class="tf-btn" data-days="1"    onclick="setTimeframe(1)">1D</button>
+                        <button class="tf-btn" data-days="7"    onclick="setTimeframe(7)">1W</button>
+                        <button class="tf-btn" data-days="30"   onclick="setTimeframe(30)">1M</button>
+                        <button class="tf-btn" data-days="90"   onclick="setTimeframe(90)">3M</button>
+                        <button class="tf-btn" data-days="180"  onclick="setTimeframe(180)">6M</button>
+                        <button class="tf-btn" data-days="365"  onclick="setTimeframe(365)">1Y</button>
+                        <button class="tf-btn" data-days="1825" onclick="setTimeframe(1825)">5Y</button>
+                        <button class="tf-btn" data-days="max"  onclick="setTimeframe(null)">All</button>
+                    </div>
+                </div>
+
+                <!-- 5-DAY FORECAST -->
+                <div class="forecast-section glass-card">
+                    <h3>🔮 5-Day AI Outlook</h3>
+                    <div id="forecastGrid" class="forecast-grid"></div>
+                </div>
+
+                <!-- VALIDATION TABLE -->
+                <div class="validation-section glass-card">
+                    <h3>📑 Historical Prediction Validation</h3>
+                    <div class="table-container">
+                        <table id="validationTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Actual Price</th>
+                                    <th>AI Predicted</th>
+                                    <th>Variance</th>
+                                    <th>Direction</th>
+                                </tr>
+                            </thead>
+                            <tbody id="validationBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -11,3 +11,7 @@ streamlit
 plotly
 xgboost
 pandas-ta
+nltk
+gunicorn
+psycopg2-binary
+
